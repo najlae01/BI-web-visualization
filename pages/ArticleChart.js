@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import dynamic from 'next/dynamic'
 const Bar = dynamic(() => import('react-chartjs-2').then((mod) => mod.Bar), {
   ssr: false,
@@ -22,6 +22,11 @@ const ArticleChart = () => {
 
   const [chartOptions, setChartOptions] = useState({})
 
+  const memoChartData = useMemo(
+    () => chartDataAllDownloads,
+    [chartDataAllDownloads]
+  )
+  const memoChartOptions = useMemo(() => chartOptions, [chartOptions])
   useEffect(() => {
     // Fetch data from MongoDB
     const fetchData = async () => {
@@ -87,7 +92,7 @@ const ArticleChart = () => {
   return (
     <div>
       <h2>Article Downloads</h2>
-      <Bar data={chartDataAllDownloads} options={chartOptions} />
+      <Bar data={memoChartData} options={memoChartOptions} />
     </div>
   )
 }
