@@ -34,7 +34,7 @@ const ArticleChart = () => {
         // Replace this with your actual MongoDB API endpoint
         const response = await fetch('/api/getArticles')
         const data = await response.json()
-
+        console.log(data)
         // Check if data is an array before mapping
         if (Array.isArray(data)) {
           // Transform data into a format suitable for charting
