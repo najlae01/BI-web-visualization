@@ -1,11 +1,8 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import dynamic from 'next/dynamic'
-const Doughnut = dynamic(
-  () => import('react-chartjs-2').then((mod) => mod.Doughnut),
-  {
-    ssr: false,
-  }
-)
+const Bar = dynamic(() => import('react-chartjs-2').then((mod) => mod.Bar), {
+  ssr: false,
+})
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -18,16 +15,92 @@ import {
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
 
-const ArticleChartInYear = () => {
-  const [chartDataYear2020, setChartDataYear2020] = useState({
+const ArticleChartDownloads = () => {
+  const [chartDataAllDownloads, setChartDataAllDownloads] = useState({
     datasets: [],
   })
 
-  const [chartDataYear2023, setChartDataYear2023] = useState({
+  const [chartDataBlockchainDownloads, setChartDataBlockchainDownloads] =
+    useState({
+      datasets: [],
+    })
+
+  const [chartDataBitcoinDownloads, setChartDataBitcoinDownloads] = useState({
+    datasets: [],
+  })
+
+  const [chartDataBigDataDownloads, setChartDataBigDataDownloads] = useState({
     datasets: [],
   })
 
   const [chartOptions, setChartOptions] = useState({})
+
+  const memoChartData = useMemo(
+    () => chartDataAllDownloads,
+    [chartDataAllDownloads]
+  )
+  const memoChartOptions = useMemo(() => chartOptions, [chartOptions])
+  useEffect(() => {
+    // Fetch data from MongoDB
+    const fetchData = async () => {
+      try {
+        // Replace this with your actual MongoDB API endpoint
+        const response = await fetch('/api/getArticles')
+        const data = await response.json()
+        console.log(data)
+        // Check if data is an array before mapping
+        if (Array.isArray(data)) {
+          // Transform data into a format suitable for charting
+          const aggregatedData = data.reduce((result, article) => {
+            const date = article.date_publication
+            if (!result[date]) {
+              result[date] = {
+                downloads: article.downloads,
+              }
+            } else {
+              result[date].downloads += article.downloads
+            }
+            return result
+          }, {})
+
+          setChartDataAllDownloads({
+            labels: Object.keys(aggregatedData),
+            datasets: [
+              {
+                label: 'Downloads Over Time',
+                data: Object.values(aggregatedData).map(
+                  (item) => item.downloads
+                ),
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1,
+              },
+            ],
+          })
+
+          setChartOptions({
+            plugins: {
+              legend: {
+                position: 'top',
+              },
+              // title: {
+              // display: true,
+              // text: 'Downloads',
+              // },
+            },
+            maintainAspectRatio: false,
+            responsive: true,
+          })
+        } else {
+          console.error('Data received is not an array:', data)
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error)
+      }
+    }
+
+    fetchData()
+  }, [])
 
   useEffect(() => {
     // Fetch data from MongoDB
@@ -35,18 +108,33 @@ const ArticleChartInYear = () => {
       try {
         // Replace this with your actual MongoDB API endpoint
         const response = await fetch(
-          '/api/getArticlesWithYear?date_publication=2020'
+          '/api/getArticlesWithTitle?title=Blockchain'
         )
         const data = await response.json()
         console.log(data)
         // Check if data is an array before mapping
         if (Array.isArray(data)) {
-          setChartDataYear2020({
-            labels: Object.keys(data),
+          // Transform data into a format suitable for charting
+          const aggregatedData = data.reduce((result, article) => {
+            const date = article.date_publication
+            if (!result[date]) {
+              result[date] = {
+                downloads: article.downloads,
+              }
+            } else {
+              result[date].downloads += article.downloads
+            }
+            return result
+          }, {})
+
+          setChartDataBlockchainDownloads({
+            labels: Object.keys(aggregatedData),
             datasets: [
               {
-                label: 'Articles In Year 2020',
-                data: Object.values(data).map((item) => item.title),
+                label: 'Blockchain Articles Downloads Over Time',
+                data: Object.values(aggregatedData).map(
+                  (item) => item.downloads
+                ),
                 backgroundColor: 'rgba(75, 192, 192, 0.2)',
                 borderColor: 'rgba(75, 192, 192, 1)',
                 borderWidth: 1,
@@ -69,34 +157,85 @@ const ArticleChartInYear = () => {
     const fetchData = async () => {
       try {
         // Replace this with your actual MongoDB API endpoint
-        const response = await fetch(
-          '/api/getArticlesWithYear?date_publication=2023'
-        )
+        const response = await fetch('/api/getArticlesWithTitle?title=Bitcoin')
         const data = await response.json()
         console.log(data)
         // Check if data is an array before mapping
         if (Array.isArray(data)) {
-          setChartDataYear2023({
-            labels: Object.keys(data),
+          // Transform data into a format suitable for charting
+          const aggregatedData = data.reduce((result, article) => {
+            const date = article.date_publication
+            if (!result[date]) {
+              result[date] = {
+                downloads: article.downloads,
+              }
+            } else {
+              result[date].downloads += article.downloads
+            }
+            return result
+          }, {})
+
+          setChartDataBitcoinDownloads({
+            labels: Object.keys(aggregatedData),
             datasets: [
               {
-                label: 'Articles In Year 2023',
-                data: Object.values(data).map((item) => item.title),
+                label: 'Bitcoin Articles Downloads Over Time',
+                data: Object.values(aggregatedData).map(
+                  (item) => item.downloads
+                ),
                 backgroundColor: 'rgba(75, 192, 192, 0.2)',
                 borderColor: 'rgba(75, 192, 192, 1)',
                 borderWidth: 1,
               },
             ],
           })
+        } else {
+          console.error('Data received is not an array:', data)
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error)
+      }
+    }
 
-          setChartOptions({
-            plugins: {
-              legend: {
-                position: 'top',
+    fetchData()
+  }, [])
+
+  useEffect(() => {
+    // Fetch data from MongoDB
+    const fetchData = async () => {
+      try {
+        // Replace this with your actual MongoDB API endpoint
+        const response = await fetch('/api/getArticlesWithTitle?title=Big Data')
+        const data = await response.json()
+        console.log(data)
+        // Check if data is an array before mapping
+        if (Array.isArray(data)) {
+          // Transform data into a format suitable for charting
+          const aggregatedData = data.reduce((result, article) => {
+            const date = article.date_publication
+            if (!result[date]) {
+              result[date] = {
+                downloads: article.downloads,
+              }
+            } else {
+              result[date].downloads += article.downloads
+            }
+            return result
+          }, {})
+
+          setChartDataBigDataDownloads({
+            labels: Object.keys(aggregatedData),
+            datasets: [
+              {
+                label: 'Big Data Articles Downloads Over Time',
+                data: Object.values(aggregatedData).map(
+                  (item) => item.downloads
+                ),
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1,
               },
-            },
-            maintainAspectRatio: false,
-            responsive: true,
+            ],
           })
         } else {
           console.error('Data received is not an array:', data)
@@ -113,14 +252,22 @@ const ArticleChartInYear = () => {
     <div className='container'>
       <div className='row'>
         <div className='col-md-6'>
-          <Doughnut data={chartDataYear2020} options={chartOptions} />
+          <Bar data={memoChartData} options={memoChartOptions} />
         </div>
         <div className='col-md-6'>
-          <Doughnut data={chartDataYear2023} options={chartOptions} />
+          <Bar data={chartDataBlockchainDownloads} options={memoChartOptions} />
+        </div>
+      </div>
+      <div className='row'>
+        <div className='col-md-6'>
+          <Bar data={chartDataBitcoinDownloads} options={memoChartOptions} />
+        </div>
+        <div className='col-md-6'>
+          <Bar data={chartDataBigDataDownloads} options={memoChartOptions} />
         </div>
       </div>
     </div>
   )
 }
 
-export default ArticleChartInYear
+export default ArticleChartDownloads

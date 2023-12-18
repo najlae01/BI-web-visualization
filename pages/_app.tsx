@@ -1,5 +1,5 @@
 import ArticleChartDownloads from './ArticleChartDownloads';
-import ArticleChartInYear from './ArticleChartInYear'
+// import ArticleChartInYear from './ArticleChartInYear'
 import './styles.css'
 
 const Home = () => {
