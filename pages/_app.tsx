@@ -9,10 +9,10 @@ const Home = () => {
       <h1 className='header'>Downloads</h1>
       <ArticleChartDownloads />
     </div>
-    <div>
+    {/* <div>
       <h1 className='header'>Articles Per Year</h1>
       <ArticleChartInYear/>
-    </div>
+    </div> */}
     </div>
   );
 };

@@ -1,11 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import dynamic from 'next/dynamic'
-const Doughnut = dynamic(
-  () => import('react-chartjs-2').then((mod) => mod.Doughnut),
-  {
-    ssr: false,
-  }
-)
+const Bar = dynamic(() => import('react-chartjs-2').then((mod) => mod.Bar), {
+  ssr: false,
+})
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -76,7 +73,7 @@ const ArticleChartInYear = () => {
         console.log(data)
         // Check if data is an array before mapping
         if (Array.isArray(data)) {
-          setChartDataBigDataDownloads({
+          setChartDataYear2023({
             labels: Object.keys(data),
             datasets: [
               {
@@ -113,10 +110,10 @@ const ArticleChartInYear = () => {
     <div className='container'>
       <div className='row'>
         <div className='col-md-6'>
-          <Doughnut data={chartDataYear2020} options={chartOptions} />
+          <Bar data={chartDataYear2020} options={chartOptions} />
         </div>
         <div className='col-md-6'>
-          <Doughnut data={chartDataYear2023} options={chartOptions} />
+          <Bar data={chartDataYear2023} options={chartOptions} />
         </div>
       </div>
     </div>

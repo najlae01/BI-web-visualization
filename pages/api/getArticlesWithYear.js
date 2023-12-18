@@ -18,6 +18,7 @@ export default async function handler(req, res) {
 
     const articles = await articlesCollection
       .find({ date_publication: year })
+      .limit(10)
       .toArray()
 
     res.status(200).json(articles)
