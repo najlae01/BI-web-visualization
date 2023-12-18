@@ -1,0 +1,6 @@
+@import '~bootstrap/dist/css/bootstrap.min.css';
+
+.header {
+    margin-left: 2rem;
+    margin-top: 1rem;
+}
